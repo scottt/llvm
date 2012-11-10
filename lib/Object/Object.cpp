@@ -75,6 +75,18 @@ void LLVMMoveToNextSymbol(LLVMSymbolIteratorRef SI) {
   if (ec) report_fatal_error("LLVMMoveToNextSymbol failed: " + ec.message());
 }
 
+// ObjectFile Dynamic Symbol iterators
+// For Dispose() and MoveToNext(), use Symbol iterator functions
+LLVMSymbolIteratorRef LLVMGetDynamicSymbols(LLVMObjectFileRef ObjectFile) {
+  symbol_iterator SI = unwrap(ObjectFile)->begin_dynamic_symbols();
+  return wrap(new symbol_iterator(SI));
+}
+
+LLVMBool LLVMIsDynamicSymbolIteratorAtEnd(LLVMObjectFileRef ObjectFile,
+                                LLVMSymbolIteratorRef SI) {
+  return (*unwrap(SI) == unwrap(ObjectFile)->end_dynamic_symbols()) ? 1 : 0;
+}
+
 // SectionRef accessors
 const char *LLVMGetSectionName(LLVMSectionIteratorRef SI) {
   StringRef ret;

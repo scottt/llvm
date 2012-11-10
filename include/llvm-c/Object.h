@@ -61,6 +61,12 @@ LLVMBool LLVMIsSymbolIteratorAtEnd(LLVMObjectFileRef ObjectFile,
                                 LLVMSymbolIteratorRef SI);
 void LLVMMoveToNextSymbol(LLVMSymbolIteratorRef SI);
 
+// ObjectFile Dynamic Symbol iterators
+// For Dispose() and MoveToNext(), use Symbol iterator functions
+LLVMSymbolIteratorRef LLVMGetDynamicSymbols(LLVMObjectFileRef ObjectFile);
+LLVMBool LLVMIsDynamicSymbolIteratorAtEnd(LLVMObjectFileRef ObjectFile,
+                                LLVMSymbolIteratorRef SI);
+
 // SectionRef accessors
 const char *LLVMGetSectionName(LLVMSectionIteratorRef SI);
 uint64_t LLVMGetSectionSize(LLVMSectionIteratorRef SI);

@@ -145,18 +145,11 @@ class ObjectFile(LLVMObject):
 
         lib.LLVMDisposeSectionIterator(sections)
 
-    def get_symbols(self, cache=False):
-        """Obtain the symbols in this object file.
-
-        This is a generator for llvm.object.Symbol instances.
-
-        Each Symbol instance is a limited-use object. See this module's
-        documentation on iterators for more.
-        """
-        symbols = lib.LLVMGetSymbols(self)
+    def _do_get_symbols(self, get_iterator, iterator_at_end, cache=False):
+        symbols = get_iterator(self)
         last = None
         while True:
-            if lib.LLVMIsSymbolIteratorAtEnd(self, symbols):
+            if iterator_at_end(self, symbols):
                 break
 
             last = Symbol(symbols, self)
@@ -172,6 +165,26 @@ class ObjectFile(LLVMObject):
             last.expire()
 
         lib.LLVMDisposeSymbolIterator(symbols)
+
+    def get_symbols(self, cache=False):
+        """Obtain the symbols in this object file.
+
+        This is a generator for llvm.object.Symbol instances.
+
+        Each Symbol instance is a limited-use object. See this module's
+        documentation on iterators for more.
+        """
+        return self._do_get_symbols(lib.LLVMGetSymbols, lib.LLVMIsSymbolIteratorAtEnd, cache)
+
+    def get_dynamic_symbols(self, cache=False):
+        """Obtain the dynamic symbols in this object file.
+
+        This is a generator for llvm.object.Symbol instances.
+
+        Each Symbol instance is a limited-use object. See this module's
+        documentation on iterators for more.
+        """
+        return self._do_get_symbols(lib.LLVMGetDynamicSymbols, lib.LLVMIsDynamicSymbolIteratorAtEnd, cache)
 
 class Section(LLVMObject):
     """Represents a section in an object file."""
@@ -463,6 +476,12 @@ def register_library(library):
     library.LLVMIsSymbolIteratorAtEnd.restype = bool
 
     library.LLVMMoveToNextSymbol.argtypes = [c_object_p]
+
+    library.LLVMGetDynamicSymbols.argtypes = [ObjectFile]
+    library.LLVMGetDynamicSymbols.restype = c_object_p
+
+    library.LLVMIsDynamicSymbolIteratorAtEnd.argtypes = [ObjectFile, c_object_p]
+    library.LLVMIsDynamicSymbolIteratorAtEnd.restype = bool
 
     library.LLVMGetSectionName.argtypes = [c_object_p]
     library.LLVMGetSectionName.restype = c_char_p

@@ -32,8 +32,15 @@ class TestObjectFile(TestBase):
     def test_get_symbols(self):
         o = self.get_object_file()
 
-        count = 0
         for symbol in o.get_symbols():
+            assert isinstance(symbol, Symbol)
+            assert isinstance(symbol.name, str)
+            assert isinstance(symbol.address, long)
+            assert isinstance(symbol.size, long)
+            assert isinstance(symbol.file_offset, long)
+
+        count = 0
+        for symbol in o.get_dynamic_symbols():
             count += 1
             assert isinstance(symbol, Symbol)
             assert isinstance(symbol.name, str)
